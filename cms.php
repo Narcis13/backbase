@@ -6,7 +6,7 @@ define('POSTS_FILE', 'posts.json');
 
 // Fetch existing posts or initialize an empty array if the file does not exist
 $posts = file_exists(POSTS_FILE) ? json_decode(file_get_contents(POSTS_FILE), true) : [];
-
+$by='Narcis';
 // Basic routing
 $page = $_GET['page'] ?? 'home';
 $id = $_GET['id'] ?? null;
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Simple PHP CMS</title>
+    <title>Simple PHP CMS by <?= $by ?></title>
 </head>
 <body>
     <h1>Simple PHP CMS</h1>
