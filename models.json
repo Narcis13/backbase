@@ -1,0 +1,12 @@
+{
+    "medici":{
+        "id":0,
+        "nume":"Medici",
+        "specialitate":"Chirurgie"
+    },
+    "compartimente":{
+        "id":0,
+        "nume":"Compartimente",
+        "detalii":""
+    }
+}

@@ -3,9 +3,11 @@
 
 // Define the path to the JSON file
 define('POSTS_FILE', 'posts.json');
+define('MODEL_FILE','models.json');
 
 // Fetch existing posts or initialize an empty array if the file does not exist
 $posts = file_exists(POSTS_FILE) ? json_decode(file_get_contents(POSTS_FILE), true) : [];
+$modele = file_exists(MODEL_FILE) ? json_decode(file_get_contents(MODEL_FILE), true) : [];
 $by='Narcis';
 // Basic routing
 $page = $_GET['page'] ?? 'home';
