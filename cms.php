@@ -209,11 +209,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['model']) && isset($models[$_POST['model']])) {
         $currentModel = $_POST['model'];
         $data = loadData($currentModel);
+        $timestamp = date('Y-m-d H:i:s');
 
         if ($_POST['action'] === 'create') {
             // Create new entry
             $id = uniqid();
-            $data[$id] = [];
+            $data[$id] = ['created_at' => $timestamp, 'updated_at' => $timestamp];
             foreach ($models[$currentModel] as $field => $type) {
                 if ($field !== 'id') {
                     $data[$id][$field] = $_POST[$field] ?? '';
@@ -227,6 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $data[$_POST['id']][$field] = $_POST[$field] ?? '';
                 }
             }
+            $data[$_POST['id']]['updated_at'] = $timestamp; // Update the updated_at timestamp
         } elseif ($_POST['action'] === 'delete' && isset($_POST['id'])) {
             // Delete entry
             unset($data[$_POST['id']]);
@@ -464,7 +466,10 @@ function paginationLinks($model, $currentPage, $totalPages) {
                 <?php foreach ($models[$model] as $field => $type): ?>
                     <th><?= ucfirst($field) ?></th>
                 <?php endforeach; ?>
+                <th>Creat</th>
+                <th>Actualizat</th>
                 <th>Actions</th>
+
             </tr>
             <?php foreach ($data as $id => $entry): ?>
                 <tr>
@@ -477,6 +482,8 @@ function paginationLinks($model, $currentPage, $totalPages) {
                             <?php endif; ?>
                         </td>
                     <?php endforeach; ?>
+                    <td> <?= $entry['created_at'] ?? ''?></td>
+                    <td> <?= $entry['updated_at'] ?? ''?></td>
                     <td>
                         <a href="?page=edit&model=<?= $model ?>&id=<?= $id ?>">Edit</a> |
                         <a href="?page=delete&model=<?= $model ?>&id=<?= $id ?>" onclick="return confirm('Are you sure?')">Delete</a>

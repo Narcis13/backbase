@@ -1,7 +1,6 @@
 - paginare ....done
 - html input...done
 -autentificare .... done
--sortare 
--default values
--timestamps
+-upload files ... done
+-timestamps ... done
 - infrumusetare ..... done

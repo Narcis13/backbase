@@ -8,5 +8,19 @@
         "nume": "MEDICALA",
         "detalii": "<p>Acest <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https:\/\/onlinehtmleditor.dev\/\">compartiment<\/a> este <i>foarte<\/i> <strong>frumos<\/strong>!<\/p>\r\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https:\/\/onlinehtmleditor.dev\/\">https:\/\/onlinehtmleditor.dev\/<\/a><\/p>",
         "id": "66d83318aeb88"
+    },
+    "66d88bed13162": {
+        "created_at": "2024-09-04 16:33:49",
+        "updated_at": "2024-09-04 16:33:49",
+        "nume": "Pediatrie",
+        "detalii": "xasasdas adsadad adasd ",
+        "id": "66d88bed13162"
+    },
+    "66d88fda31cd5": {
+        "created_at": "2024-09-04 16:50:34",
+        "updated_at": "2024-09-04 16:50:34",
+        "nume": "UROLOGIE",
+        "detalii": "dssdssss",
+        "id": "66d88fda31cd5"
     }
 }
