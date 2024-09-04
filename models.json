@@ -7,6 +7,6 @@
     "compartimente":{
         "id":0,
         "nume":"Compartimente",
-        "detalii":""
+        "detalii":"@html"
     }
 }
