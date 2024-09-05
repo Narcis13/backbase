@@ -116,6 +116,53 @@ $telefon='0248218090';
           </ol>
         </div>
 
+
+        <?php
+// File to handle both the list of all doctors and individual doctor details
+
+// Function to read JSON file
+function readJsonFile($filename) {
+    $jsonData = file_get_contents($filename);
+    return json_decode($jsonData, true);
+}
+
+// Read the JSON file
+$mediciData = readJsonFile('medici.json');
+
+// Sort the data by 'nume' (name)
+uasort($mediciData, function($a, $b) {
+    return strcmp($a['nume'], $b['nume']);
+});
+
+// Check if a specific doctor ID is requested
+if (isset($_GET['medicid'])) {
+    $medicId = $_GET['medicid'];
+    if (isset($mediciData[$medicId])) {
+        // Display individual doctor details
+        $doctor = $mediciData[$medicId];
+        echo "<h1>{$doctor['nume']}</h1>";
+        echo "<p>Specialitate: {$doctor['specialitate']}</p>";
+        echo "<p>ID: {$doctor['id']}</p>";
+        if (isset($doctor['created_at'])) {
+            echo "<p>Created at: {$doctor['created_at']}</p>";
+        }
+        if (isset($doctor['updated_at'])) {
+            echo "<p>Updated at: {$doctor['updated_at']}</p>";
+        }
+        echo "<a href='/site/inner-page.php'>Back to all doctors</a>";
+    } else {
+        echo "Doctor not found.";
+    }
+} else {
+    // Display list of all doctors
+    echo "<h1>Toti Medicii</h1>";
+    echo "<ul>";
+    foreach ($mediciData as $id => $doctor) {
+        echo "<li><a href='/site/inner-page.php?medicid={$id}'>{$doctor['nume']} - {$doctor['specialitate']}</a></li>";
+    }
+    echo "</ul>";
+}
+?>
       </div>
     </section><!-- End Breadcrumbs Section -->
 
