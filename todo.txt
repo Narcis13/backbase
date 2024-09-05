@@ -4,3 +4,5 @@
 -upload files ... done
 -timestamps ... done
 - infrumusetare ..... done
+- api endpoints
+- models CRUD
