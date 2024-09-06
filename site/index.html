@@ -1006,7 +1006,28 @@
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
-
+  <script>
+    // Fetch the JSON data
+    fetch('medici.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Process and display the data
+          //  const mediciList = document.getElementById('medici-list');
+            
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    const medic = data[key];
+                   console.log(medic)
+                }
+            }
+        })
+        .catch(error => console.error('There was a problem with the fetch operation:', error));
+</script>
 </body>
 
 </html>

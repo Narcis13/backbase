@@ -4,5 +4,40 @@
 -upload files ... done
 -timestamps ... done
 - infrumusetare ..... done
-- api endpoints
+- api endpoints ... done
 - models CRUD
+
+
+
+
+server {
+    listen 80;
+    server_name your_domain.com;
+    root /path/to/your/project;
+    index backbase.php;
+
+    location / {
+        try_files $uri $uri/ /backbase.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;  # Adjust this to match your PHP version
+        fastcgi_index backbase.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    # Deny access to .htaccess files
+    location ~ /\.ht {
+        deny all;
+    }
+}
+
+
+RewriteEngine On
+RewriteBase /
+
+# For all requests, use backbase.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . backbase.php [L]

@@ -1,6 +1,10 @@
 <?php
 // File: index.php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 
 // Define constants for file paths
@@ -17,6 +21,161 @@ function isLoggedIn() {
 function verifyPassword($password) {
     $hashedPassword = file_get_contents(PASSWORD_FILE);
     return password_verify($password, $hashedPassword);
+}
+
+// Helper function to load models
+function loadModels() {
+    return file_exists(MODELS_FILE) ? json_decode(file_get_contents(MODELS_FILE), true) : [];
+}
+
+// Helper function to load data for a specific model
+function loadData($model) {
+    $filename = DATA_DIRECTORY . $model . '.json';
+    return file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
+}
+
+// Helper function to save data for a specific model
+function saveData($model, $data) {
+    $filename = DATA_DIRECTORY . $model . '.json';
+    file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
+}
+
+// Load models
+$models = loadModels();
+
+// Check if this is an API request
+$request_uri = $_SERVER['REQUEST_URI'];
+$is_api_request = strpos($request_uri, '/api/') === 0;
+
+if ($is_api_request) {
+    // API functionality
+    header('Content-Type: application/json');
+
+    $uri_parts = explode('/', trim($request_uri, '/'));
+    array_shift($uri_parts); // Remove 'api'
+    $model = $uri_parts[0] ?? '';
+    $id = $uri_parts[1] ?? null;
+
+    // Function to verify Bearer token
+    function verifyToken($token) {
+        $hashedPassword = file_get_contents(PASSWORD_FILE);
+        return password_verify($token, $hashedPassword);
+    }
+
+    // Check authorization for POST, PATCH, and DELETE requests
+    function checkAuthorization() {
+        $method = $_SERVER['REQUEST_METHOD'];
+        if (in_array($method, ['POST', 'PATCH', 'DELETE'])) {
+            $headers = apache_request_headers();
+            $authHeader = $headers['Authorization'] ?? '';
+            if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+                $token = $matches[1];
+                if (!verifyToken($token)) {
+                    http_response_code(401);
+                    echo json_encode(['error' => 'Unauthorized']);
+                    exit;
+                }
+            } else {
+                http_response_code(401);
+                echo json_encode(['error' => 'Unauthorized']);
+                exit;
+            }
+        }
+    }
+
+    // Check authorization
+    checkAuthorization();
+
+    // Handle API requests
+    switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET':
+            if ($model && isset($models[$model])) {
+                $data = loadData($model);
+                if ($id !== null) {
+                    if (isset($data[$id])) {
+                        echo json_encode($data[$id]);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(['error' => 'Not found']);
+                    }
+                } else {
+                    echo json_encode($data);
+                }
+            } else {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid model']);
+            }
+            break;
+
+        case 'POST':
+            if ($model && isset($models[$model])) {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $data = loadData($model);
+                $id = uniqid();
+                $timestamp = date('Y-m-d H:i:s');
+                $newEntry = ['id' => $id, 'created_at' => $timestamp, 'updated_at' => $timestamp];
+                foreach ($models[$model] as $field => $type) {
+                    if ($field !== 'id') {
+                        $newEntry[$field] = $input[$field] ?? '';
+                    }
+                }
+                $data[$id] = $newEntry;
+                saveData($model, $data);
+                http_response_code(201);
+                echo json_encode($newEntry);
+            } else {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid model']);
+            }
+            break;
+
+        case 'PATCH':
+            if ($model && isset($models[$model]) && $id !== null) {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $data = loadData($model);
+                if (isset($data[$id])) {
+                    $timestamp = date('Y-m-d H:i:s');
+                    foreach ($models[$model] as $field => $type) {
+                        if ($field !== 'id' && isset($input[$field])) {
+                            $data[$id][$field] = $input[$field];
+                        }
+                    }
+                    $data[$id]['updated_at'] = $timestamp;
+                    saveData($model, $data);
+                    echo json_encode($data[$id]);
+                } else {
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Not found']);
+                }
+            } else {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid model or ID']);
+            }
+            break;
+
+        case 'DELETE':
+            if ($model && isset($models[$model]) && $id !== null) {
+                $data = loadData($model);
+                if (isset($data[$id])) {
+                    unset($data[$id]);
+                    saveData($model, $data);
+                    http_response_code(204);
+                } else {
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Not found']);
+                }
+            } else {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid model or ID']);
+            }
+            break;
+
+        default:
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+            break;
+    }
+    exit;
 }
 
 // Handle login
@@ -160,21 +319,21 @@ if (!isLoggedIn()) {
 
 // The rest of your CMS code goes here
 // Helper function to load models
-function loadModels() {
-    return file_exists(MODELS_FILE) ? json_decode(file_get_contents(MODELS_FILE), true) : [];
-}
+//function loadModels() {
+  //  return file_exists(MODELS_FILE) ? json_decode(file_get_contents(MODELS_FILE), true) : [];
+//}
 
 // Helper function to load data for a specific model
-function loadData($model) {
-    $filename = DATA_DIRECTORY . $model . '.json';
-    return file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
-}
+//function loadData($model) {
+ //   $filename = DATA_DIRECTORY . $model . '.json';
+ //   return file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
+//}
 
 // Helper function to save data for a specific model
-function saveData($model, $data) {
-    $filename = DATA_DIRECTORY . $model . '.json';
-    file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
-}
+//function saveData($model, $data) {
+//    $filename = DATA_DIRECTORY . $model . '.json';
+//    file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
+//}
 
 // Pagination function
 function paginateData($model, $currentPage = 1, $perPage = 3) {
